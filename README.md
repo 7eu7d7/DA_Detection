@@ -10,7 +10,7 @@
 ## Introduction
 Follow [faster-rcnn repository](https://github.com/jwyang/faster-rcnn.pytorch)
  to setup the environment. When installing pytorch-faster-rcnn, you may encounter some issues.
-Many issues have been reported there to setup the environment. We used Pytorch 0.4.0 for this project.
+Many issues have been reported there to setup the environment. We used Pytorch 1.7.1 for this project.
 The different version of pytorch will cause some errors, which have to be handled based on each envirionment.
 
 ### Data Preparation
