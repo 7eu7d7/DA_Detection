@@ -24,18 +24,8 @@ def prepare_roidb(imdb):
     #if not (imdb.name.startswith('coco')):
     #sizes = [PIL.Image.open(imdb.image_path_at(i)).size for i in range(imdb.num_images)]
     sizes = datasets.ds_utils.load_cache_data(f'{imdb.name} sizes', os.path.join(imdb.cache_path, imdb.name + '_img_sizes.pkl'),
-                                              lambda :[PIL.Image.open(imdb.image_path_at(i)).size for i in range(imdb.num_images)])
-
-    '''cache_file = os.path.join(imdb.cache_path, imdb.name + '_img_sizes.pkl')
-    if os.path.exists(cache_file):
-        with open(cache_file, 'rb') as fid:
-            sizes = pickle.load(fid)
-        print('{} sizes loaded from {}'.format(imdb.name, cache_file))
-    else:
-        sizes = [PIL.Image.open(imdb.image_path_at(i)).size for i in range(imdb.num_images)]
-        with open(cache_file, 'wb') as fid:
-            pickle.dump(sizes, fid, pickle.HIGHEST_PROTOCOL)
-            print('wrote sizes to {}'.format(cache_file))'''
+                                              lambda :[PIL.Image.open(imdb.image_path_at(i)).size for i in range(imdb.num_images)],
+                                              loaded_proc=lambda x:x*2)
 
     for i in range(len(imdb.image_index)):
         roidb[i]['img_id'] = imdb.image_id_at(i)

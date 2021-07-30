@@ -49,10 +49,10 @@ def filter_small_boxes(boxes, min_size):
     keep = np.where((w >= min_size) & (h > min_size))[0]
     return keep
 
-def load_cache_data(name, cache_file, nexist):
+def load_cache_data(name, cache_file, nexist, loaded_proc=None):
     if os.path.exists(cache_file):
         with open(cache_file, 'rb') as fid:
-            data = pickle.load(fid)
+            data = loaded_proc(pickle.load(fid)) if loaded_proc is not None else pickle.load(fid)
         print('{} loaded from {}'.format(name, cache_file))
     else:
         data = nexist()

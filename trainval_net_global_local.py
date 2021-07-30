@@ -163,8 +163,8 @@ if __name__ == '__main__':
 
     if args.use_tfboard:
         from tensorboardX import SummaryWriter
-
         logger = SummaryWriter("logs")
+
     count_iter = 0
     for epoch in range(args.start_epoch, args.max_epochs + 1):
         # setting to train mode
@@ -191,18 +191,18 @@ if __name__ == '__main__':
             #eta = 1.0
             count_iter += 1
             #put source data into variable
-            im_data.data.resize_(data_s[0].size()).copy_(data_s[0])
-            im_info.data.resize_(data_s[1].size()).copy_(data_s[1])
-            gt_boxes.data.resize_(data_s[2].size()).copy_(data_s[2])
-            num_boxes.data.resize_(data_s[3].size()).copy_(data_s[3])
+            with torch.no_grad():
+                im_data.resize_(data_s[0].size()).copy_(data_s[0])
+                im_info.resize_(data_s[1].size()).copy_(data_s[1])
+                gt_boxes.resize_(data_s[2].size()).copy_(data_s[2])
+                num_boxes.resize_(data_s[3].size()).copy_(data_s[3])
 
             fasterRCNN.zero_grad()
             rois, cls_prob, bbox_pred, \
             rpn_loss_cls, rpn_loss_box, \
             RCNN_loss_cls, RCNN_loss_bbox, \
             rois_label, out_d_pixel, out_d = fasterRCNN(im_data, im_info, gt_boxes, num_boxes)
-            loss = rpn_loss_cls.mean() + rpn_loss_box.mean() \
-                   + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()
+            loss = rpn_loss_cls.mean() + rpn_loss_box.mean() + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()
             loss_temp += loss.item()
 
 
@@ -214,11 +214,12 @@ if __name__ == '__main__':
             dloss_s_p = 0.5 * torch.mean(out_d_pixel ** 2)
 
             #put target data into variable
-            im_data.data.resize_(data_t[0].size()).copy_(data_t[0])
-            im_info.data.resize_(data_t[1].size()).copy_(data_t[1])
-            #gt is empty
-            gt_boxes.data.resize_(1, 1, 5).zero_()
-            num_boxes.data.resize_(1).zero_()
+            with torch.no_grad():
+                im_data.resize_(data_t[0].size()).copy_(data_t[0])
+                im_info.resize_(data_t[1].size()).copy_(data_t[1])
+                #gt is empty
+                gt_boxes.resize_(1, 1, 5).zero_()
+                num_boxes.resize_(1).zero_()
             out_d_pixel, out_d = fasterRCNN(im_data, im_info, gt_boxes, num_boxes, target=True)
             # domain label
             domain_t = Variable(torch.ones(out_d.size(0)).long().cuda())

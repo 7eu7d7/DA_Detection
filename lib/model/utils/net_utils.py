@@ -129,7 +129,7 @@ class FocalLoss(nn.Module):
         # print(N)
         C = inputs.size(1)
         if self.sigmoid:
-            P = F.sigmoid(inputs)
+            P = torch.sigmoid(inputs)
             #F.softmax(inputs)
             if targets == 0:
                 probs = 1 - P#(P * class_mask).sum(1).view(-1, 1)
@@ -141,7 +141,7 @@ class FocalLoss(nn.Module):
                 batch_loss = - (torch.pow((1 - probs), self.gamma)) * log_p
         else:
             #inputs = F.sigmoid(inputs)
-            P = F.softmax(inputs)
+            P = F.softmax(inputs, dim=1)
 
             class_mask = inputs.data.new(N, C).fill_(0)
             class_mask = Variable(class_mask)
@@ -244,20 +244,23 @@ class FocalPseudo(nn.Module):
         else:
             loss = batch_loss.sum()
         return loss
-class GradReverse(Function):
-    def __init__(self, lambd):
-        self.lambd = lambd
 
-    def forward(self, x):
+class GradReverse(Function):
+
+    # 重写父类方法的时候，最好添加默认参数，不然会有warning（为了好看。。）
+    @ staticmethod
+    def forward(ctx, x, lambd, **kwargs: None):
+        #　其实就是传入dict{'lambd' = lambd}
+        ctx.lambd = lambd
         return x.view_as(x)
 
-    def backward(self, grad_output):
-        #pdb.set_trace()
-        return (grad_output * -self.lambd)
-
+    @staticmethod
+    def backward(ctx, *grad_output):
+        # 传入的是tuple，我们只需要第一个
+        return grad_output[0] * -ctx.lambd, None
 
 def grad_reverse(x, lambd=1.0):
-    return GradReverse(lambd)(x)
+    return GradReverse.apply(x, lambd)
 
 def save_net(fname, net):
     import h5py

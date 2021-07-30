@@ -122,20 +122,6 @@ class pascal_voc(imdb):
 
         This function loads/saves from/to a cache file to speed up future calls.
         """
-        '''cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
-        print('cache file:', cache_file)
-        if os.path.exists(cache_file):
-            with open(cache_file, 'rb') as fid:
-
-                roidb = pickle.load(fid)
-            print('{} gt roidb loaded from {}'.format(self.name, cache_file))
-            return roidb
-
-        gt_roidb = [self._load_pascal_annotation(index)
-                    for index in self.image_index]
-        with open(cache_file, 'wb') as fid:
-            pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
-        print('wrote gt roidb to {}'.format(cache_file))'''
 
         return datasets.ds_utils.load_cache_data(f'{self.name} gt roidb',os.path.join(self.cache_path, self.name + '_gt_roidb.pkl'),
                                                   lambda: [self._load_pascal_annotation(index) for index in self.image_index])

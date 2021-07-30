@@ -188,10 +188,11 @@ if __name__ == '__main__':
                 data_t = next(data_iter_t)
             #eta = 1.0
             count_iter += 1
-            im_data.data.resize_(data_s[0].size()).copy_(data_s[0])
-            im_info.data.resize_(data_s[1].size()).copy_(data_s[1])
-            gt_boxes.data.resize_(data_s[2].size()).copy_(data_s[2])
-            num_boxes.data.resize_(data_s[3].size()).copy_(data_s[3])
+            with torch.no_grad():
+                im_data.data.resize_(data_s[0].size()).copy_(data_s[0])
+                im_info.data.resize_(data_s[1].size()).copy_(data_s[1])
+                gt_boxes.data.resize_(data_s[2].size()).copy_(data_s[2])
+                num_boxes.data.resize_(data_s[3].size()).copy_(data_s[3])
 
             fasterRCNN.zero_grad()
             rois, cls_prob, bbox_pred, \
@@ -203,10 +204,11 @@ if __name__ == '__main__':
                    + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()
             dloss_s_p = torch.mean(out_d_pixel ** 2) * 0.5
             loss_temp += loss.item()
-            im_data.data.resize_(data_t[0].size()).copy_(data_t[0])
-            im_info.data.resize_(data_t[1].size()).copy_(data_t[1])
-            gt_boxes.data.resize_(1, 1, 5).zero_()
-            num_boxes.data.resize_(1).zero_()
+            with torch.no_grad():
+                im_data.data.resize_(data_t[0].size()).copy_(data_t[0])
+                im_info.data.resize_(data_t[1].size()).copy_(data_t[1])
+                gt_boxes.data.resize_(1, 1, 5).zero_()
+                num_boxes.data.resize_(1).zero_()
             out_d_pixel = fasterRCNN(im_data, im_info, gt_boxes, num_boxes, target=True)
             # backward
             dloss_t_p = torch.mean((1 - out_d_pixel) ** 2) * 0.5

@@ -110,46 +110,11 @@ class imdb(object):
         raise NotImplementedError
 
     def _get_widths(self):
-        '''cache_file = os.path.join(self.cache_path, self.name + '_img_sizes.pkl')
-        if os.path.exists(cache_file):
-            with open(cache_file, 'rb') as fid:
-                sizes = pickle.load(fid)
-            print('{} sizes loaded from {}'.format(self.name, cache_file))
-        else:
-            sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
-            with open(cache_file, 'wb') as fid:
-                pickle.dump(sizes, fid, pickle.HIGHEST_PROTOCOL)
-                print('wrote sizes to {}'.format(cache_file))'''
         sizes = datasets.ds_utils.load_cache_data(f'{self.name} widths',os.path.join(self.cache_path, self.name + '_img_sizes.pkl'),
                                                   lambda: [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)])
         return [x[0] for x in sizes]
 
     def append_flipped_images(self):
-        #cache_file = os.path.join(self.cache_path, self.name + '_flipped_images.pkl')
-
-        '''num_images = self.num_images
-        widths = self._get_widths()
-        if os.path.exists(cache_file):
-            with open(cache_file, 'rb') as fid:
-                entrys = pickle.load(fid)
-            print('{} flipped images loaded from {}'.format(self.name, cache_file))
-        else:
-            entrys = []
-            for i in range(num_images):
-                boxes = self.roidb[i]['boxes'].copy()
-                oldx1 = boxes[:, 0].copy()
-                oldx2 = boxes[:, 2].copy()
-                boxes[:, 0] = widths[i] - oldx2 - 1
-                boxes[:, 2] = widths[i] - oldx1 - 1
-                assert (boxes[:, 2] >= boxes[:, 0]).all()
-                entry = {'boxes': boxes,
-                         'gt_overlaps': self.roidb[i]['gt_overlaps'],
-                         'gt_classes': self.roidb[i]['gt_classes'],
-                         'flipped': True}
-                entrys.append(entry)
-            with open(cache_file, 'wb') as fid:
-                pickle.dump(entrys, fid, pickle.HIGHEST_PROTOCOL)
-                print('wrote flipped images to {}'.format(cache_file))'''
         def flip():
             num_images = self.num_images
             widths = self._get_widths()
@@ -160,6 +125,11 @@ class imdb(object):
                 oldx2 = boxes[:, 2].copy()
                 boxes[:, 0] = widths[i] - oldx2 - 1
                 boxes[:, 2] = widths[i] - oldx1 - 1
+                if not (boxes[:, 2] >= boxes[:, 0]).all():
+                    print(self.image_path_at(i))
+                    print(widths[i])
+                    print(boxes)
+                    print(self.roidb[i]['boxes'])
                 assert (boxes[:, 2] >= boxes[:, 0]).all()
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
