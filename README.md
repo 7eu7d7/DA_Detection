@@ -1,9 +1,9 @@
-# A Pytorch Implementation of [Strong-Weak Distribution Alignment for Adaptive Object Detection](https://arxiv.org/pdf/1812.04798.pdf) (CVPR 2019)
+# A Pytorch(1.7) Implementation of [Strong-Weak Distribution Alignment for Adaptive Object Detection](https://arxiv.org/pdf/1812.04798.pdf) (CVPR 2019)
 
 <img src='./docs/swda.png' width=900/>
 
 ## Changes
-* Added support for pytorch 1.7
+* Added support for pytorch 1.7(30 series gpu)
 * Remove redundant segmentation labels loading
 * Add caches of processed datasets
 
