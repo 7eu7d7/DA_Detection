@@ -1,5 +1,3 @@
-# coding:utf-8
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,7 +5,7 @@ from torch.autograd import Variable,Function
 import numpy as np
 import torchvision.models as models
 from model.utils.config import cfg
-from model.roi_crop.functions.roi_crop import RoICropFunction
+#from model.roi_crop.functions.roi_crop import RoICropFunction
 import cv2
 import pdb
 import random
@@ -43,9 +41,7 @@ class EFocalLoss(nn.Module):
     r"""
         This criterion is a implemenation of Focal Loss, which is proposed in
         Focal Loss for Dense Object Detection.
-
             Loss(x, class) = - \alpha (1-softmax(x)[class])^gamma \log(softmax(x)[class])
-
         The losses are averaged across observations for each minibatch.
         Args:
             alpha(1D Tensor, Variable) : the scalar factor for this criterion
@@ -103,9 +99,7 @@ class FocalLoss(nn.Module):
     r"""
         This criterion is a implemenation of Focal Loss, which is proposed in
         Focal Loss for Dense Object Detection.
-
             Loss(x, class) = - \alpha (1-softmax(x)[class])^gamma \log(softmax(x)[class])
-
         The losses are averaged across observations for each minibatch.
         Args:
             alpha(1D Tensor, Variable) : the scalar factor for this criterion
@@ -181,9 +175,7 @@ class FocalPseudo(nn.Module):
     r"""
         This criterion is a implemenation of Focal Loss, which is proposed in
         Focal Loss for Dense Object Detection.
-
             Loss(x, class) = - \alpha (1-softmax(x)[class])^gamma \log(softmax(x)[class])
-
         The losses are averaged across observations for each minibatch.
         Args:
             alpha(1D Tensor, Variable) : the scalar factor for this criterion
@@ -467,7 +459,7 @@ def _affine_theta(rois, input_size):
 
     return theta
 
-def compare_grid_sample():
+'''def compare_grid_sample():
     # do gradcheck
     N = random.randint(1, 8)
     C = 2 # random.randint(1, 8)
@@ -493,4 +485,4 @@ def compare_grid_sample():
     grad_input_stn = grad_inputs[0]
     pdb.set_trace()
 
-    delta = (grad_input_off.data - grad_input_stn).sum()
+    delta = (grad_input_off.data - grad_input_stn).sum()'''

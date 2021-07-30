@@ -15,13 +15,13 @@ cfg_d = __D
 #
 # Training options
 #with regard to pascal, the directories under the path will be ./VOC2007, ./VOC2012"
-__D.PASCAL = "/VOCdevkit"
+__D.PASCAL = "../datas/VOCdevkit"
 __D.PASCALCLIP = ""
-__D.PASCALWATER = "/VOCdevkit"
+__D.PASCALWATER = "../datas/VOCdevkit"
 
 #For these datasets, the directories under the path will be Annotations  ImageSets  JPEGImages."
-__D.CLIPART = "/clipart"
-__D.WATER = "/watercolor"
+__D.CLIPART = "../datas/clipart"
+__D.WATER = "../datas/watercolor"
 __D.SIM10K = "Sim10k/VOC2012"
 __D.CITYSCAPE_CAR = "/VOC2007"
 __D.CITYSCAPE = "VOC2007"

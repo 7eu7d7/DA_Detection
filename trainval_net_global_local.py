@@ -52,9 +52,11 @@ if __name__ == '__main__':
     cfg.TRAIN.USE_FLIPPED = True
     cfg.USE_GPU_NMS = args.cuda
     # source dataset
+    print('Preparing source data:')
     imdb, roidb, ratio_list, ratio_index = combined_roidb(args.imdb_name)
     train_size = len(roidb)
     # target dataset
+    print('Preparing target data:')
     imdb_t, roidb_t, ratio_list_t, ratio_index_t = combined_roidb(args.imdb_name_target)
     train_size_t = len(roidb_t)
 

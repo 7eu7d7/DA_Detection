@@ -29,6 +29,7 @@ from .voc_eval import voc_eval
 # >>>> obsolete, because it depends on sth outside of this project
 from model.utils.config import cfg
 from .config_dataset import cfg_d
+import datasets
 
 try:
     xrange          # Python 2
@@ -121,8 +122,8 @@ class pascal_voc(imdb):
 
         This function loads/saves from/to a cache file to speed up future calls.
         """
-        cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
-        print(cache_file)
+        '''cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
+        print('cache file:', cache_file)
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as fid:
 
@@ -134,9 +135,10 @@ class pascal_voc(imdb):
                     for index in self.image_index]
         with open(cache_file, 'wb') as fid:
             pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
-        print('wrote gt roidb to {}'.format(cache_file))
+        print('wrote gt roidb to {}'.format(cache_file))'''
 
-        return gt_roidb
+        return datasets.ds_utils.load_cache_data(f'{self.name} gt roidb',os.path.join(self.cache_path, self.name + '_gt_roidb.pkl'),
+                                                  lambda: [self._load_pascal_annotation(index) for index in self.image_index])
 
     def selective_search_roidb(self):
         """
@@ -204,7 +206,7 @@ class pascal_voc(imdb):
 
         return self.create_roidb_from_box_list(box_list, gt_roidb)
 
-    def _load_pascal_annotation(self, index):
+    def _load_pascal_annotation(self, index, seg=False):
         """
         Load image and bounding boxes info from XML file in the PASCAL VOC
         format.
@@ -225,22 +227,23 @@ class pascal_voc(imdb):
         boxes = np.zeros((num_objs, 4), dtype=np.uint16)
         gt_classes = np.zeros((num_objs), dtype=np.int32)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
-        # "Seg" area for pascal is just the box area
-        seg_areas = np.zeros((num_objs), dtype=np.float32)
         ishards = np.zeros((num_objs), dtype=np.int32)
         tree = ET.parse(filename)
         img_size = tree.find('size')#[0]
+        # "Seg" area for pascal is just the box area
+        seg_areas = np.zeros((num_objs), dtype=np.float32)
         #print(img_size)
         #print((int(tree.find('width').text)))
-        seg_map = np.zeros((int(img_size.find('width').text),int(img_size.find('height').text)))
+        if seg:
+            seg_map = np.zeros((int(img_size.find('width').text),int(img_size.find('height').text)))
         # Load object bounding boxes into a data frame.
         for ix, obj in enumerate(objs):
             bbox = obj.find('bndbox')
             # Make pixel indexes 0-based
-            x1 = float(bbox.find('xmin').text) - 1
-            y1 = float(bbox.find('ymin').text) - 1
-            x2 = float(bbox.find('xmax').text) - 1
-            y2 = float(bbox.find('ymax').text) - 1
+            x1 = int(bbox.find('xmin').text) - 1
+            y1 = int(bbox.find('ymin').text) - 1
+            x2 = int(bbox.find('xmax').text) - 1
+            y2 = int(bbox.find('ymax').text) - 1
 
             diffc = obj.find('difficult')
             difficult = 0 if diffc == None else int(diffc.text)
@@ -248,20 +251,29 @@ class pascal_voc(imdb):
 
             cls = self._class_to_ind[obj.find('name').text.lower().strip()]
             boxes[ix, :] = [x1, y1, x2, y2]
-            seg_map[x1:x2,y1:y2] = cls
+            seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
             gt_classes[ix] = cls
             overlaps[ix, cls] = 1.0
-            seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
+            if seg:
+                seg_map[x1:x2, y1:y2] = cls
 
         overlaps = scipy.sparse.csr_matrix(overlaps)
 
-        return {'boxes': boxes,
-                'gt_classes': gt_classes,
-                'gt_ishard': ishards,
-                'gt_overlaps': overlaps,
-                'flipped': False,
-                'seg_areas': seg_areas,
-                'seg_map':seg_map}
+        if seg:
+            return {'boxes': boxes,
+                    'gt_classes': gt_classes,
+                    'gt_ishard': ishards,
+                    'gt_overlaps': overlaps,
+                    'flipped': False,
+                    'seg_areas': seg_areas,
+                    'seg_map':seg_map}
+        else:
+            return {'boxes': boxes,
+                    'gt_classes': gt_classes,
+                    'gt_ishard': ishards,
+                    'gt_overlaps': overlaps,
+                    'flipped': False,
+                    'seg_areas': seg_areas}
     def _get_comp_id(self):
         comp_id = (self._comp_id + '_' + self._salt if self.config['use_salt']
                    else self._comp_id)
