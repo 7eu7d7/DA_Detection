@@ -2,6 +2,11 @@
 
 <img src='./docs/swda.png' width=900/>
 
+## Changes
+* Added support for pytorch 1.7
+* Remove redundant segmentation labels loading
+* Add caches of processed datasets
+
 ## Introduction
 Follow [faster-rcnn repository](https://github.com/jwyang/faster-rcnn.pytorch)
  to setup the environment. When installing pytorch-faster-rcnn, you may encounter some issues.
